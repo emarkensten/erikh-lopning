@@ -335,6 +335,156 @@ p { margin: 6px 0; }
 .lede { color: var(--ink-soft); font-size: 13.5px; margin: 2px 0 18px 0; }
 
 /* ---------------------------------------------------------------------- */
+/* Race hero — the "start line" moment on the Start view                   */
+/* ---------------------------------------------------------------------- */
+
+.hero-race {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(120% 140% at 8% 0%, var(--green-800) 0%, var(--green-950) 62%);
+  min-height: 320px;
+  display: flex;
+  margin-bottom: 16px;
+}
+
+/* Duotone treatment: grayscale the busy race photo, wash it green so it
+   belongs to the brand (not the street), then lay a legibility scrim from
+   the text side so the copy always reads. The runner stays visible right. */
+.hero-media {
+  position: absolute; inset: 0;
+  background-image: url("erik.jpg");
+  background-size: cover;
+  background-position: center 82%;
+  filter: grayscale(1) contrast(1.05) brightness(1.12);
+  z-index: 0;
+}
+.hero-media::before {  /* green duotone wash */
+  content: ""; position: absolute; inset: 0;
+  background: var(--green-500);
+  mix-blend-mode: multiply;
+}
+.hero-media::after {   /* legibility scrim from the copy side */
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(100deg,
+    var(--green-950) 22%,
+    rgba(9, 28, 18, 0.72) 46%,
+    rgba(11, 42, 28, 0.18) 78%,
+    transparent 100%);
+}
+
+.hero-body {
+  position: relative; z-index: 1;
+  padding: 30px 34px 32px 34px;
+  max-width: 64%;
+  display: flex; flex-direction: column;
+}
+.hero-kicker {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--gold-500); margin-bottom: 12px;
+}
+.hero-kicker svg { width: 14px; height: 14px; }
+
+.hero-count { display: flex; align-items: baseline; gap: 16px; }
+.hero-count-num {
+  font-family: "Big Shoulders Display", sans-serif; font-weight: 800;
+  font-size: clamp(76px, 13vw, 132px); line-height: 0.78; color: #FFFFFF;
+  letter-spacing: -0.02em; font-variant-numeric: tabular-nums;
+  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+}
+.hero-count-unit {
+  font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700;
+  color: var(--gold-500); line-height: 1.15;
+}
+
+.hero-goal {
+  margin: 20px 0 0 0; font-size: 17px; color: #F3EFE2; font-weight: 500;
+}
+.hero-goal strong { font-weight: 800; color: #FFFFFF; }
+.hero-pace {
+  display: inline-block; margin-left: 6px; padding: 2px 9px; border-radius: 999px;
+  background: rgba(198, 152, 43, 0.18); border: 1px solid rgba(198, 152, 43, 0.4);
+  color: var(--gold-500); font-size: 12.5px; font-weight: 700; vertical-align: 2px;
+}
+.hero-sub {
+  margin: 8px 0 0 0; font-size: 13px; color: rgba(243, 239, 226, 0.72); max-width: 42ch;
+}
+
+/* ---------------------------------------------------------------------- */
+/* 13-week phase track                                                    */
+/* ---------------------------------------------------------------------- */
+
+.phase-track {
+  display: flex; gap: 4px; margin-bottom: 22px;
+}
+.phase-seg {
+  position: relative;
+  border-radius: var(--radius-sm);
+  padding: 9px 12px 8px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  min-width: 0;
+  transition: transform 0.2s var(--ease);
+}
+.phase-seg.is-done { opacity: 0.62; }
+.phase-seg.is-current {
+  background: linear-gradient(135deg, var(--green-700), var(--green-800));
+  border-color: var(--green-900);
+  box-shadow: var(--shadow-sm);
+}
+.phase-name {
+  display: block; font-family: "Big Shoulders Display", sans-serif; font-weight: 700;
+  font-size: 15px; color: var(--green-800); letter-spacing: 0.01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.phase-wk { display: block; font-size: 10.5px; color: var(--muted); font-weight: 600; margin-top: 1px; }
+.phase-seg.is-current .phase-name { color: #FFFFFF; }
+.phase-seg.is-current .phase-wk { color: var(--gold-500); }
+.phase-seg::before {
+  content: ""; position: absolute; left: 12px; right: 12px; top: 0; height: 3px;
+  border-radius: 0 0 3px 3px;
+}
+.phase-seg.tone-ok::before { background: var(--ok); }
+.phase-seg.tone-warn::before { background: var(--warn); }
+.phase-seg.tone-stop::before { background: var(--stop); }
+.phase-seg.tone-neutral::before { background: var(--gold-500); }
+.phase-seg.is-current::before { top: 0; height: 4px; }
+
+/* ---------------------------------------------------------------------- */
+/* Stat strip — big athletic numerals, no card frames                     */
+/* ---------------------------------------------------------------------- */
+
+.stat-strip {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 0;
+  border: 1px solid var(--border); border-radius: var(--radius-md);
+  background: var(--surface); box-shadow: var(--shadow-sm); overflow: hidden;
+  margin-bottom: 26px;
+}
+.stat { padding: 16px 18px; border-left: 1px solid var(--border); }
+.stat:first-child { border-left: none; }
+.stat-num {
+  display: block; font-family: "Big Shoulders Display", sans-serif; font-weight: 800;
+  font-size: 40px; line-height: 0.92; color: var(--green-800); font-variant-numeric: tabular-nums;
+}
+.stat-num-sub { font-size: 20px; color: var(--muted); font-weight: 700; margin-left: 1px; }
+.stat-cap {
+  display: flex; align-items: center; gap: 5px; margin-top: 7px;
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.045em; font-weight: 700; color: var(--ink-soft);
+}
+.stat-cap svg { width: 13px; height: 13px; color: var(--gold-600); }
+.stat-sub { display: block; margin-top: 3px; font-size: 11.5px; color: var(--muted); }
+
+/* Section lead — a labelled band intro instead of a bare h3 */
+.section-lead { display: flex; align-items: center; gap: 10px; margin: 4px 0 10px; flex-wrap: wrap; }
+.lead-kicker {
+  font-family: "Big Shoulders Display", sans-serif; font-weight: 700; font-size: 20px;
+  color: var(--green-800); letter-spacing: 0.01em;
+}
+
+/* ---------------------------------------------------------------------- */
 /* Cards / stat tiles                                                     */
 /* ---------------------------------------------------------------------- */
 
@@ -541,6 +691,11 @@ a.navlink:hover { color: var(--green-800); border-bottom-style: solid; }
   .content { padding: 22px 22px 48px 22px; }
 }
 
+@media (max-width: 860px) {
+  .hero-body { max-width: 76%; }
+  .stat-num { font-size: 34px; }
+}
+
 @media (max-width: 760px) {
   .app { display: block; }
   .topbar {
@@ -556,6 +711,28 @@ a.navlink:hover { color: var(--green-800); border-bottom-style: solid; }
   .content { padding: 18px 16px 48px 16px; }
   .about-head { flex-direction: column; align-items: center; text-align: center; }
   h2.section-title { font-size: 25px; }
+
+  /* Hero: vertical scrim so text over the photo stays legible on narrow */
+  .hero-race { min-height: 320px; }
+  .hero-media { background-position: center 60%; }
+  .hero-media::after {
+    background: linear-gradient(180deg,
+      rgba(9, 28, 18, 0.35) 0%,
+      rgba(9, 28, 18, 0.72) 55%,
+      var(--green-950) 100%);
+  }
+  .hero-body { max-width: 100%; padding: 22px 22px 24px; justify-content: flex-end; }
+  .hero-count-num { font-size: clamp(72px, 24vw, 104px); }
+
+  /* Phase track: hide week ranges, keep the labelled progress */
+  .phase-wk { display: none; }
+  .phase-seg { padding: 8px 8px 7px; }
+  .phase-name { font-size: 12.5px; }
+
+  /* Stat strip stacks */
+  .stat-strip { grid-template-columns: 1fr; }
+  .stat { border-left: none; border-top: 1px solid var(--border); }
+  .stat:first-child { border-top: none; }
 }
 
 @media (min-width: 761px) {
@@ -588,20 +765,3 @@ a.navlink:focus-visible {
   border-radius: var(--radius-sm);
 }
 .card:focus-visible { outline: 2px solid var(--green-600); outline-offset: 2px; }
-
-/* ---------------------------------------------------------------------- */
-/* Bolder pass: one hero number, everything else supports it              */
-/* ---------------------------------------------------------------------- */
-
-.card.hero {
-  background: linear-gradient(155deg, var(--green-800) 0%, var(--green-900) 100%);
-  border-color: var(--green-900);
-  grid-row: span 1;
-}
-.card.hero .label { color: rgba(230, 239, 231, 0.72); }
-.card.hero .label svg { color: var(--gold-500); }
-.card.hero .value { color: #FFFFFF; font-size: 56px; font-weight: 800; letter-spacing: 0.005em; }
-.card.hero .note { color: rgba(230, 239, 231, 0.78); }
-@media (max-width: 520px) {
-  .card.hero .value { font-size: 44px; }
-}

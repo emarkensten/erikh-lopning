@@ -82,12 +82,29 @@
 
     <!-- START -->
     <section id="tab-start" class="view active" role="tabpanel" aria-labelledby="navtab-start">
-      <div class="view-header"><h2 class="section-title"><span class="icon-chip"><svg><use href="#i-home"/></svg></span>Läget den 17 juli 2026</h2></div>
-      <div class="cards" id="countdownCards"></div>
+      <div class="hero-race">
+        <div class="hero-media" role="img" aria-label="Erik Hammarström springer i mål, startnummer 2530"></div>
+        <div class="hero-body">
+          <div class="hero-kicker"><svg><use href="#i-flag"/></svg>Malmö halvmara · 3 okt 2026</div>
+          <div class="hero-count">
+            <span class="hero-count-num" id="heroDays" data-count="0">0</span>
+            <span class="hero-count-unit">dagar<br>till start</span>
+          </div>
+          <p class="hero-goal">Målet: <strong>sub&nbsp;1:24:00</strong> <span class="hero-pace">≈3:58/km</span></p>
+          <p class="hero-sub">Norsk sub-threshold som motor. Hälsenan under uppsikt hela vägen.</p>
+        </div>
+      </div>
 
+      <div class="phase-track" id="phaseTrack" aria-label="Träningsblockets faser"></div>
+
+      <div class="stat-strip" id="startStrip"></div>
+
+      <div class="section-lead">
+        <span class="lead-kicker">Form idag</span>
+        <span class="snap-tag">Ögonblicksbild från Garmin · 17 jul 2026</span>
+      </div>
       <div class="box snap">
-        <div class="snap-tag">Ögonblicksbild från Garmin, 17 jul 2026</div>
-        <div class="cards" style="margin-top:10px; margin-bottom:0;">
+        <div class="cards" style="margin-bottom:0;">
           <div class="card"><div class="label"><svg><use href="#i-lungs"/></svg>VO2max (16 jul)</div><div class="value">56</div></div>
           <div class="card"><div class="label"><svg><use href="#i-gauge"/></svg>ACWR</div><div class="value">1,2</div><div class="note">OPTIMAL</div></div>
           <div class="card"><div class="label"><svg><use href="#i-bolt"/></svg>Träningsstatus</div><div class="value text">PRODUCTIVE_2</div></div>

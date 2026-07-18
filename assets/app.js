@@ -211,23 +211,54 @@ function animateCount(el, to, duration = 700) {
   requestAnimationFrame(tick);
 }
 
-(function renderCountdown() {
-  const today = BUILD_DATE;
-  const race = new Date('2026-10-03T00:00:00');
-  const test10k = new Date('2026-09-19T00:00:00');
-  const daysToRace = daysBetween(today, race);
-  const daysToTest = daysBetween(today, test10k);
-  const cur = planWeeks.find(w => {
-    const s = new Date(w.start + 'T00:00:00');
-    const e = new Date(s); e.setDate(e.getDate() + 7);
-    return today >= s && today < e;
-  });
-  document.getElementById('countdownCards').innerHTML = `
-    <div class="card hero"><div class="label"><svg><use href="#i-flag"/></svg>Dagar till Malmö halvmara</div><div class="value" data-count="${daysToRace}">0</div><div class="note">3 okt 2026 · sub 1:24</div></div>
-    <div class="card"><div class="label"><svg><use href="#i-target"/></svg>Dagar till 10k-test</div><div class="value" data-count="${daysToTest}">0</div><div class="note">~19 sep · sub 39:00</div></div>
-    <div class="card"><div class="label"><svg><use href="#i-calendar"/></svg>Aktuell vecka (17 jul)</div><div class="value text">${cur ? 'v.' + cur.n + ' / 13' : '–'}</div><div class="note">${cur ? cur.dates : ''}</div></div>
+// Phase metadata for the 13-week block (start view track + plan view).
+const phases = [
+  { name: 'Bas', weeks: [1, 2, 3, 4], tone: 'ok' },
+  { name: 'Tröskel', weeks: [5, 6, 7, 8], tone: 'warn' },
+  { name: 'Skärpning', weeks: [9, 10, 11], tone: 'stop' },
+  { name: 'Tapering', weeks: [12, 13], tone: 'neutral' },
+];
+
+const BUILD_TODAY = BUILD_DATE;
+const RACE_DATE = new Date('2026-10-03T00:00:00');
+const TEST_DATE = new Date('2026-09-19T00:00:00');
+const currentWeek = planWeeks.find(w => {
+  const s = new Date(w.start + 'T00:00:00');
+  const e = new Date(s); e.setDate(e.getDate() + 7);
+  return BUILD_TODAY >= s && BUILD_TODAY < e;
+});
+
+(function renderHero() {
+  const daysToRace = daysBetween(BUILD_TODAY, RACE_DATE);
+  const el = document.getElementById('heroDays');
+  el.dataset.count = daysToRace;
+  animateCount(el, daysToRace, 900);
+})();
+
+(function renderStrip() {
+  const daysToTest = daysBetween(BUILD_TODAY, TEST_DATE);
+  const wk = currentWeek ? currentWeek.n : '–';
+  const done = currentWeek ? Math.round((currentWeek.n - 1) / 13 * 100) : 0;
+  document.getElementById('startStrip').innerHTML = `
+    <div class="stat"><span class="stat-num" data-count="${daysToTest}">0</span><span class="stat-cap"><svg><use href="#i-target"/></svg>dagar till 10k-test</span><span class="stat-sub">~19 sep · sub 39:00</span></div>
+    <div class="stat"><span class="stat-num">v.${wk}<span class="stat-num-sub">/13</span></span><span class="stat-cap"><svg><use href="#i-calendar"/></svg>aktuell vecka</span><span class="stat-sub">${currentWeek ? currentWeek.dates : ''}</span></div>
+    <div class="stat"><span class="stat-num">${done}<span class="stat-num-sub">%</span></span><span class="stat-cap"><svg><use href="#i-trend"/></svg>av blocket klart</span><span class="stat-sub">v.1–13 · 6 jul–3 okt</span></div>
   `;
-  document.querySelectorAll('#countdownCards [data-count]').forEach(el => animateCount(el, Number(el.dataset.count)));
+  document.querySelectorAll('#startStrip [data-count]').forEach(el => animateCount(el, Number(el.dataset.count)));
+})();
+
+(function renderPhaseTrack() {
+  const track = document.getElementById('phaseTrack');
+  if (!track) return;
+  const curN = currentWeek ? currentWeek.n : 0;
+  track.innerHTML = phases.map(ph => {
+    const isCurrent = ph.weeks.includes(curN);
+    const done = ph.weeks.every(w => w < curN);
+    return `<div class="phase-seg tone-${ph.tone} ${isCurrent ? 'is-current' : ''} ${done ? 'is-done' : ''}" style="flex:${ph.weeks.length}">
+      <span class="phase-name">${ph.name}</span>
+      <span class="phase-wk">v.${ph.weeks[0]}${ph.weeks.length > 1 ? '–' + ph.weeks[ph.weeks.length - 1] : ''}</span>
+    </div>`;
+  }).join('');
 })();
 
 (function renderPlan() {
