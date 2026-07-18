@@ -196,6 +196,7 @@ nav.tabs button {
   font-weight: 600;
   text-align: left;
   padding: 10px 12px;
+  min-height: 44px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: color 0.2s var(--ease);
@@ -212,7 +213,7 @@ nav.tabs button.active { color: #FDF9EC; }
   border-radius: var(--radius-sm);
   background: linear-gradient(120deg, var(--green-600), var(--green-700));
   box-shadow: inset 0 0 0 1px rgba(198, 152, 43, 0.35), 0 4px 14px rgba(0, 0, 0, 0.25);
-  transition: transform 0.38s var(--ease), height 0.38s var(--ease);
+  transition: transform 0.26s var(--ease), height 0.26s var(--ease);
   pointer-events: none;
   z-index: 0;
 }
@@ -230,8 +231,8 @@ nav.tabs button.active { color: #FDF9EC; }
   position: relative;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 9px;
@@ -279,11 +280,19 @@ nav.tabs button.active { color: #FDF9EC; }
 section.view { display: none; }
 section.view.active {
   display: block;
-  animation: viewIn 0.42s var(--ease) both;
+  animation: viewInNext 0.26s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
-@keyframes viewIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+/* Directional per nav order — not a scroll-reveal fade, a wayfinding cue.
+   .content.dir-prev is set right before activation when moving to an
+   earlier tab, so content re-enters from the side it left from. */
+.content.dir-prev section.view.active { animation-name: viewInPrev; }
+@keyframes viewInNext {
+  from { opacity: 0; transform: translateX(14px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes viewInPrev {
+  from { opacity: 0; transform: translateX(-14px); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 .view-header {
@@ -344,7 +353,7 @@ p { margin: 6px 0; }
   box-shadow: var(--shadow-sm);
   transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease);
 }
-.card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.card:hover { transform: translateY(-2px); box-shadow: 0 6px 8px rgba(11, 26, 18, 0.10), 0 1px 2px rgba(11, 26, 18, 0.08); border-color: var(--border-strong); }
 
 .card .label {
   display: flex; align-items: center; gap: 6px;
@@ -415,7 +424,7 @@ thead th {
 tbody tr:last-child td { border-bottom: none; }
 tbody tr:hover td { background: rgba(34, 127, 79, 0.035); }
 tr.current-week td { background: var(--gold-tint); }
-tr.current-week td:first-child { font-weight: 800; color: var(--green-800); border-left: 3px solid var(--gold-500); }
+tr.current-week td:first-child { font-weight: 800; color: var(--green-800); }
 
 .plan-table { min-width: 900px; }
 .plan-table td, .plan-table th { min-width: 108px; }
@@ -458,7 +467,7 @@ table:not(.no-plain) { border: none; }
   position: absolute; top: 3px; bottom: 3px; border-radius: 999px;
   background: linear-gradient(120deg, var(--green-600), var(--green-700));
   box-shadow: var(--shadow-sm);
-  transition: transform 0.32s var(--ease), width 0.32s var(--ease);
+  transition: transform 0.24s var(--ease), width 0.24s var(--ease);
   z-index: 0;
 }
 
@@ -537,4 +546,48 @@ a.navlink:hover { color: var(--green-800); border-bottom-style: solid; }
 
 @media (min-width: 761px) {
   .hamburger { display: none; }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Accessibility: reduced motion                                          */
+/* ---------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------------------------------------------------------------------- */
+/* Focus states — branded, always visible                                 */
+/* ---------------------------------------------------------------------- */
+
+nav.tabs button:focus-visible,
+.segmented button:focus-visible,
+.hamburger:focus-visible,
+a.navlink:focus-visible {
+  outline: 2px solid var(--gold-500);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.card:focus-visible { outline: 2px solid var(--green-600); outline-offset: 2px; }
+
+/* ---------------------------------------------------------------------- */
+/* Bolder pass: one hero number, everything else supports it              */
+/* ---------------------------------------------------------------------- */
+
+.card.hero {
+  background: linear-gradient(155deg, var(--green-800) 0%, var(--green-900) 100%);
+  border-color: var(--green-900);
+  grid-row: span 1;
+}
+.card.hero .label { color: rgba(230, 239, 231, 0.72); }
+.card.hero .label svg { color: var(--gold-500); }
+.card.hero .value { color: #FFFFFF; font-size: 52px; letter-spacing: 0.005em; }
+.card.hero .note { color: rgba(230, 239, 231, 0.78); }
+@media (max-width: 520px) {
+  .card.hero .value { font-size: 44px; }
 }

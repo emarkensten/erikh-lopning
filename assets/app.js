@@ -26,7 +26,13 @@ function moveIndicatorTo(btn) {
   navIndicator.style.height = r.height + 'px';
 }
 
+const contentEl = document.querySelector('.content');
+let currentTabIndex = 0;
+
 function showTab(name, { skipScroll } = {}) {
+  const nextIndex = tabs.indexOf(name);
+  contentEl.classList.toggle('dir-prev', nextIndex < currentTabIndex);
+  currentTabIndex = nextIndex;
   tabs.forEach(t => {
     const active = t === name;
     document.getElementById('tab-' + t).classList.toggle('active', active);
@@ -190,6 +196,10 @@ function daysBetween(a, b) { return Math.ceil((b - a) / 86400000); }
 
 // Count-up animation for the countdown numbers (delight, used sparingly)
 function animateCount(el, to, duration = 700) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    el.textContent = to;
+    return;
+  }
   const start = performance.now();
   function tick(now) {
     const p = Math.min(1, (now - start) / duration);
@@ -213,7 +223,7 @@ function animateCount(el, to, duration = 700) {
     return today >= s && today < e;
   });
   document.getElementById('countdownCards').innerHTML = `
-    <div class="card"><div class="label"><svg><use href="#i-flag"/></svg>Dagar till Malmö halvmara</div><div class="value" data-count="${daysToRace}">0</div><div class="note">3 okt 2026 · sub 1:24</div></div>
+    <div class="card hero"><div class="label"><svg><use href="#i-flag"/></svg>Dagar till Malmö halvmara</div><div class="value" data-count="${daysToRace}">0</div><div class="note">3 okt 2026 · sub 1:24</div></div>
     <div class="card"><div class="label"><svg><use href="#i-target"/></svg>Dagar till 10k-test</div><div class="value" data-count="${daysToTest}">0</div><div class="note">~19 sep · sub 39:00</div></div>
     <div class="card"><div class="label"><svg><use href="#i-calendar"/></svg>Aktuell vecka (17 jul)</div><div class="value text">${cur ? 'v.' + cur.n + ' / 13' : '–'}</div><div class="note">${cur ? cur.dates : ''}</div></div>
   `;
@@ -270,7 +280,13 @@ window.addEventListener('load', function () {
   Chart.defaults.font.family = "'Public Sans', sans-serif";
   Chart.defaults.color = ink;
 
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // Hero moment for VO2max: the line draws itself left-to-right, point by
+  // point, rather than just fading/growing in place — the one signature
+  // animation this view gets (per-view "hero moment", not a generic fade).
   const vctx = document.getElementById('vo2Chart');
+  const vo2PointDelay = reduceMotion ? 0 : 55;
   window.vo2ChartInstance = new Chart(vctx, {
     type: 'line',
     data: {
@@ -288,13 +304,35 @@ window.addEventListener('load', function () {
         x: { grid: { display: false } },
       },
       plugins: { legend: { display: false } },
-      animation: { duration: 900, easing: 'easeOutCubic' },
+      animation: {
+        x: {
+          type: 'number', easing: 'linear', duration: vo2PointDelay, from: NaN,
+          delay(ctx) {
+            if (ctx.type !== 'data' || ctx.xStarted) return 0;
+            ctx.xStarted = true;
+            return ctx.index * vo2PointDelay;
+          },
+        },
+        y: {
+          type: 'number', easing: 'easeOutExpo', duration: vo2PointDelay * 3,
+          from: (ctx) => ctx.index === 0 ? ctx.chart.scales.y.getPixelForValue(50) : undefined,
+          delay(ctx) {
+            if (ctx.type !== 'data' || ctx.yStarted) return 0;
+            ctx.yStarted = true;
+            return ctx.index * vo2PointDelay;
+          },
+        },
+      },
     },
   });
 
+  // Hero moment for pulse zones: bars build left-to-right in a short,
+  // capped wave (16 months × 25ms ≈ 400ms total) rather than one uniform
+  // grow-in, echoing the timeline the chart itself represents.
   const zctx = document.getElementById('zoneChart');
   const colors = ['#B7C8BC', green800, gold500, '#8A5A2F', '#8A2F1F'];
   const labels = ['Zon 1', 'Zon 2', 'Zon 3', 'Zon 4', 'Zon 5'];
+  const zoneStagger = reduceMotion ? 0 : 25;
   window.zoneChartInstance = new Chart(zctx, {
     type: 'bar',
     data: {
@@ -310,7 +348,11 @@ window.addEventListener('load', function () {
         y: { stacked: true, title: { display: true, text: 'Minuter' }, grid: { color: border } },
       },
       plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'rectRounded' } } },
-      animation: { duration: 900, easing: 'easeOutCubic' },
+      animation: {
+        duration: reduceMotion ? 0 : 420,
+        easing: 'easeOutExpo',
+        delay(ctx) { return ctx.type === 'data' ? ctx.dataIndex * zoneStagger : 0; },
+      },
     },
   });
 });
